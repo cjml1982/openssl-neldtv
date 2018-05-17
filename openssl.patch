@@ -1,0 +1,66 @@
+diff --git a/new/openssl_1.0.2g_v2/openssl.ld b/new/openssl_1.0.2g_v2/openssl.ld
+index 27e489c..90e35dd 100755
+--- a/new/openssl_1.0.2g_v2/openssl.ld
++++ b/new/openssl_1.0.2g_v2/openssl.ld
+@@ -4622,6 +4622,9 @@ OPENSSL_1.0.2d {
+                ECDSA_sign_hardware;
+                RSA_public_encrypt_software;
+                RSA_private_decrypt_software;
++               bind_engine;
++               ecdsa_check;
++               ENGINE_*;
+        local:
+                *;
+ };
+
+
+diff --git a/new/openssl_1.0.2g_v2/crypto/engine/Makefile b/new/openssl_1.0.2g_v2/crypto/engine/Makefile
+index e2eb3c9..99102e0 100644
+--- a/new/openssl_1.0.2g_v2/crypto/engine/Makefile
++++ b/new/openssl_1.0.2g_v2/crypto/engine/Makefile
+@@ -21,14 +21,14 @@ LIBSRC= eng_err.c eng_lib.c eng_list.c eng_init.c eng_ctrl.c \
+        eng_table.c eng_pkey.c eng_fat.c eng_all.c \
+        tb_rsa.c tb_dsa.c tb_ecdsa.c tb_dh.c tb_ecdh.c tb_rand.c tb_store.c \
+        tb_cipher.c tb_digest.c tb_pkmeth.c tb_asnmth.c \
+-       eng_openssl.c eng_cnf.c eng_dyn.c eng_cryptodev.c \
+-       eng_rdrand.c interface_crypfun.c
++       eng_openssl.c eng_cnf.c eng_dyn.c  \
++       eng_rdrand.c
+ LIBOBJ= eng_err.o eng_lib.o eng_list.o eng_init.o eng_ctrl.o \
+        eng_table.o eng_pkey.o eng_fat.o eng_all.o \
+        tb_rsa.o tb_dsa.o tb_ecdsa.o tb_dh.o tb_ecdh.o tb_rand.o tb_store.o \
+        tb_cipher.o tb_digest.o tb_pkmeth.o tb_asnmth.o \
+-       eng_openssl.o eng_cnf.o eng_dyn.o eng_cryptodev.o \
+-       eng_rdrand.o interface_crypfun.o
++       eng_openssl.o eng_cnf.o eng_dyn.o \
++       eng_rdrand.o
+
+
+diff --git a/crypto/engine/eng_lib.c b/crypto/engine/eng_lib.c
+index c12aeb8..d983228 100644
+--- a/crypto/engine/eng_lib.c
++++ b/crypto/engine/eng_lib.c
+@@ -71,7 +71,7 @@ void engine_set_all_null(ENGINE *e)
+ 
+ int engine_free_util(ENGINE *e, int locked)
+ {
+-    int i;
++    unsigned long i;
+ 
+     if (e == NULL)
+         return 1;
+
+
+diff --git a/crypto/engine/eng_int.h b/crypto/engine/eng_int.h
+index f5dabe8..1cd1f8f 100644
+--- a/crypto/engine/eng_int.h
++++ b/crypto/engine/eng_int.h
+@@ -175,7 +175,7 @@ struct engine_st {
+     const ENGINE_CMD_DEFN *cmd_defns;
+     int flags;
+     /* reference count on the structure itself */
+-    int struct_ref;
++    unsigned long struct_ref;
+     /*
+      * reference count on usability of the engine type. NB: This controls the
+      * loading and initialisation of any functionality required by this

@@ -1,0 +1,1 @@
+将该eng_cryptodev.c文件放置于openssl编译目录中的crypto/engine文件下，然后按照用户使用手册中的引擎编译的步骤编译即可。
