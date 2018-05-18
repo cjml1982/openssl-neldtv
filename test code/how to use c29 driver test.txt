@@ -1,0 +1,1 @@
+sudo ./c29x_driver_perf_profile.sh RSA_PUB_OP_2K -m 0x2 -t 1 -s 10
